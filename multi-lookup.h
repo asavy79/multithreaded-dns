@@ -8,10 +8,11 @@
 #include "array.h"
 #include <arpa/inet.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define SEM_MAX 10
 #define IPV4_BUFFER_LENGTH 50
-#define CONSUMER_COUNT 100
+#define CONSUMER_COUNT 50
 #define FILENAME_LENGTH 50
 
 typedef struct

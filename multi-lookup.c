@@ -85,7 +85,8 @@ void *resolve_names(void *ptr)
 
         if (resolve_ipv4_address(buffer, ipv4, 50) != 0)
         {
-            logfile_append(args->log, "NOT_RESOLVED", buffer);
+            char not_resolved[50] = "NOT_RESOLVED";
+            logfile_append(args->log, not_resolved, buffer);
         }
         else
         {
@@ -128,9 +129,15 @@ int main(int argc, char *argv[])
 
     if (argc < 3)
     {
-        printf("Nah\n");
+        printf("Invalid amount of arguments. Must include a log file and at least one file to read from.\n");
         return -1;
     }
+
+
+    clock_t start, end;
+    double total_time;
+
+    start = clock();
 
     int producer_thread_count = argc - 2;
 
@@ -157,8 +164,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("Created producer threads\n");
-
     // consumer threads
     for (int i = 0; i < CONSUMER_COUNT; i++)
     {
@@ -172,12 +177,10 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("Created consumer threads\n");
 
     for (int i = 0; i < producer_thread_count; i++)
     {
         pthread_join(threads[i], NULL);
-        printf("Thread %d has finished producing\n", i);
     }
 
     char * stop_signal = "STOP_SIGNAL";
@@ -187,18 +190,21 @@ int main(int argc, char *argv[])
         array_put(&a, stop_signal);
     }
 
-    printf("HELLO\n");
-
     for (int i = 0; i < CONSUMER_COUNT; i++)
     {
         pthread_join(consumer_threads[i], NULL);
-        printf("Thread %d has finished.\n", i);
     }
 
     array_free(&a);
 
     logfile_free(log_file);
     free(log_file);
+
+    end = clock();
+
+    total_time = ((double) (end-start)) / CLOCKS_PER_SEC;
+
+    printf("%s: total time is %2f seconds\n", argv[0], total_time);
 
     return 0;
 }
